@@ -53,3 +53,16 @@ def process_comparables_data(data):
     comparables = [data[k] for k in keys[1:]]
 
     return subject, comparables
+
+def compute_average_assessed_value(comparables):
+    """
+    Computes the average assessed value of the comparable properties.
+    Skips properties without 'assessed value'.
+    """
+    values = [c.get("assessed value") for c in comparables if "assessed value" in c]
+    
+    # Edge case if we don't get any valid comparables
+    if not values:
+        return None
+    
+    return sum(values) / len(values)

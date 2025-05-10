@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from utils.response import success, error
-from utils.comparables import fetch_property_data, process_comparables_data
+from utils.comparables import fetch_property_data, process_comparables_data, compute_average_assessed_value
 
 app = Flask(__name__)
 
@@ -31,12 +31,15 @@ def get_comparables():
     # We get three fields from comparables module
     data, err, status = fetch_property_data(pin)
     subject, comparables = process_comparables_data(data)
+    avg_assessed_val = compute_average_assessed_value(comparables)
     if err:
         return error(f"Failed to fetch property data: {err}", status=status)
     
     return success(data={
         "subject_property" : subject,
-        "comparable_properties" : comparables
+        "comparable_properties" : comparables,
+        "average_assessed_value" : avg_assessed_val
+
     }, message="Fetched comparable properties data successfully")
 
 
