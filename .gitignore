@@ -1,2 +1,4 @@
 pins.csv
 venv/
+.env
+utils/__pycache__
