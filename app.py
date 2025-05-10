@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from utils.response import success, error
-from utils.comparables import fetch_property_data
+from utils.comparables import fetch_property_data, process_comparables_data
 
 app = Flask(__name__)
 
@@ -28,12 +28,16 @@ def get_comparables():
     if not pin:
         return error("Missing 'pin' query parameter in request", status=422)
     
-    # We get both fields from comparables module
+    # We get three fields from comparables module
     data, err, status = fetch_property_data(pin)
+    subject, comparables = process_comparables_data(data)
     if err:
         return error(f"Failed to fetch property data: {err}", status=status)
     
-    return success(data=data, message="Fetched comparables data successfully")
+    return success(data={
+        "subject_property" : subject,
+        "comparable_properties" : comparables
+    }, message="Fetched comparable properties data successfully")
 
 
 if __name__ == '__main__':
