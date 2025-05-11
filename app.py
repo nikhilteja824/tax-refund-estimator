@@ -27,22 +27,21 @@ def calculate_tax_refund():
 
     pin = input_data["pin"]
 
-    # 1. Fetch comparables
+
     data, err, status = fetch_property_data(pin)
     if err:
         return error(err, status=status)
 
-    # 2. Parse subject + comparables
-    subject, comparables = process_comparables_data(data)
+    property, comparables = process_comparables_data(data)
     avg_value = compute_average_assessed_value(comparables)
 
-    # 3. Determine full calendar years of ownership
-    sale_date = subject.get("sale date")
+
+    sale_date = property.get("sale date")
     years_eligible = get_years_eligible(sale_date)
 
     
 
-    assessed_property_value, is_over_assessed_flag = is_over_assessed(subject, avg_value)
+    assessed_property_value, is_over_assessed_flag = is_over_assessed(property, avg_value)
     base_amount = assessed_property_value - avg_value
     if not is_over_assessed_flag or years_eligible == 0:
         return success(data={
@@ -78,21 +77,21 @@ def check_eligibility_for_refund():
     if err:
         return error(err, status=status)
 
-    subject, comparables = process_comparables_data(data)
+    property, comparables = process_comparables_data(data)
     avg_value = compute_average_assessed_value(comparables)
 
-    _, is_over = is_over_assessed(subject, avg_value)
+    _, is_over = is_over_assessed(property, avg_value)
     if not is_over:
         return success(data={
             "eligible": False,
-            "subject_assessed_value": subject.get("assessed value"),
-            "average_assessed_value": avg_value,
+            "propertyAssessedValue": property.get("assessed value"),
+            "averageAssessedValue": avg_value,
         }, message="Property assessed value is not greater than average of comparables")
 
     return success(data={
         "eligible": True,
-        "subject_assessed_value": subject.get("assessed value"),
-        "average_assessed_value": avg_value,
+        "propertyAssessedValue": property.get("assessed value"),
+        "averageAssessedValue": avg_value,
     }, message="Property is eligible for tax refund")
 
 
@@ -107,14 +106,14 @@ def get_comparables():
 
     if err:
         return error(f"Failed to fetch property data: {err}", status=status)
-    subject, comparables = process_comparables_data(data)
+    property, comparables = process_comparables_data(data)
     avg_assessed_value = compute_average_assessed_value(comparables)
 
     
     return success(data={
-        "subject_property" : subject,
-        "comparable_properties" : comparables,
-        "average_assessed_value" : avg_assessed_value
+        "property" : property,
+        "comparableProperties" : comparables,
+        "averageAssessedValue" : avg_assessed_value
 
     }, message="Fetched comparable properties data successfully")
 

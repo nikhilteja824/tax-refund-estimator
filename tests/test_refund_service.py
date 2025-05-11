@@ -54,16 +54,16 @@ def test_calculate_refund_invalid_rate(tmp_path):
 
 
 def test_is_over_assessed_success():
-    subject = {"assessed value": 35000}
+    property = {"assessed value": 35000}
     avg = 30000
-    value, flag = is_over_assessed(subject, avg)
+    value, flag = is_over_assessed(property, avg)
     assert value == 35000
     assert flag is True
 
 def test_is_over_assessed_failure():
-    subject = {"assessed value": 28000}
+    property = {"assessed value": 28000}
     avg = 30000
-    value, flag = is_over_assessed(subject, avg)
+    value, flag = is_over_assessed(property, avg)
     assert value == 28000
     assert flag is False
 

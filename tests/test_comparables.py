@@ -20,7 +20,7 @@ def test_process_comparables_data():
         "prop2": {"assessed value": 31000},
         "prop3": {"assessed value": 32000}
     }
-    subject, comparables = process_comparables_data(mock_data)
-    assert subject == mock_data["prop1"]
+    property, comparables = process_comparables_data(mock_data)
+    assert property == mock_data["prop1"]
     assert len(comparables) == 2
     assert comparables[0]["assessed value"] == 31000

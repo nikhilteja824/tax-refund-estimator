@@ -48,11 +48,11 @@ def process_comparables_data(data):
         return None, []
 
     keys = list(data.keys())
-    subject_key = keys[0]
-    subject = data[subject_key]
+    property_key = keys[0]
+    property = data[property_key]
     comparables = [data[k] for k in keys[1:]]
 
-    return subject, comparables
+    return property, comparables
 
 def compute_average_assessed_value(comparables):
     """

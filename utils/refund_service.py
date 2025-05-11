@@ -56,17 +56,17 @@ def calculate_refund(base_amount, years_eligible, interest_csv_path):
 
 
 
-def is_over_assessed(subject_property, avg_assessed_value):
+def is_over_assessed(property, avg_assessed_value):
     """
     Returns a tuple: (assessed_value: float, is_over_assessed: bool)
     """
-    subject_value = subject_property.get("assessed value")
+    property_assessed_value = property.get("assessed value")
 
     # If either value is missing, we can't make a decision
-    if subject_value is None or avg_assessed_value is None:
+    if property_assessed_value is None or avg_assessed_value is None:
         return None, False
 
-    return subject_value, subject_value > avg_assessed_value
+    return property_assessed_value, property_assessed_value > avg_assessed_value
 
 
 
