@@ -141,4 +141,4 @@ def get_comparables():
 
 if __name__ == '__main__':
     logger.info(f"Starting Property Tax Refund Estimator API on port {app_port}")
-    app.run(host="0.0.0.0", port=int(app_port), debug=True)
+    app.run(host="0.0.0.0", port=int(app_port))
