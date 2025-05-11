@@ -8,7 +8,7 @@ import os
 
 load_dotenv()
 
-interest_rates_csv_path = os.getenv("INTEREST_RATES_CSV_PATH", "test_interests.csv")
+interest_rates_csv_path = os.getenv("INTEREST_RATES_CSV_PATH", "interest_rates.csv")
 app_port = os.getenv("APP_PORT", "5000")
 
 app = Flask(__name__)
@@ -141,4 +141,4 @@ def get_comparables():
 
 if __name__ == '__main__':
     logger.info(f"Starting Property Tax Refund Estimator API on port {app_port}")
-    app.run(host="0.0.0.0", port=int(app_port), debug=True)
+    app.run(host="0.0.0.0", port=int(app_port))
