@@ -26,22 +26,22 @@ def calculate_tax_refund():
         return error("Missing 'pin' in request body", status=422)
 
     pin = input_data["pin"]
-
+    enriched = request.args.get("enriched", "false").lower() == "true"
 
     data, err, status = fetch_property_data(pin)
     if err:
         return error(err, status=status)
 
-    property, comparables = process_comparables_data(data)
+    property_, comparables = process_comparables_data(data)
     avg_value = compute_average_assessed_value(comparables)
 
 
-    sale_date = property.get("sale date")
+    sale_date = property_.get("sale date")
     years_eligible = get_years_eligible(sale_date)
 
     
 
-    assessed_property_value, is_over_assessed_flag = is_over_assessed(property, avg_value)
+    assessed_property_value, is_over_assessed_flag = is_over_assessed(property_, avg_value)
     base_amount = assessed_property_value - avg_value
     if not is_over_assessed_flag or years_eligible == 0:
         return success(data={
@@ -50,21 +50,33 @@ def calculate_tax_refund():
             "totalRefund": 0.0,
         })
 
-    # 4. Compute refund
-    refund, refund_error = calculate_refund(
+    
+    refund, refund_error, refund_breakdown = calculate_refund(
         base_amount=base_amount,
         years_eligible=years_eligible,
-        interest_csv_path= interest_rates_csv_path
+        interest_csv_path=interest_rates_csv_path
     )
 
     if refund_error:
         return error(refund_error, status=500)
-
-    return success(data={
+    
+    response = {
         "pin": pin,
         "yearsEligible": years_eligible,
         "totalRefund": refund
-    })
+    }
+
+    # These are optional response data fields based on enriched flag in query parameters
+    if enriched:
+        response["taxRefundBreakdown"] = refund_breakdown
+        response["propertySummary"] = {
+            "address": property_.get("address"),
+            "class": property_.get("class"),
+            "saleDate": property_.get("sale date"),
+            "propertyAssessedValue": assessed_property_value
+        }
+
+    return success(data=response)
 
 
 @app.route("/eligibility", methods=["GET"])
@@ -77,20 +89,20 @@ def check_eligibility_for_refund():
     if err:
         return error(err, status=status)
 
-    property, comparables = process_comparables_data(data)
+    property_, comparables = process_comparables_data(data)
     avg_value = compute_average_assessed_value(comparables)
 
-    _, is_over = is_over_assessed(property, avg_value)
+    _, is_over = is_over_assessed(property_, avg_value)
     if not is_over:
         return success(data={
             "eligible": False,
-            "propertyAssessedValue": property.get("assessed value"),
+            "propertyAssessedValue": property_.get("assessed value"),
             "averageAssessedValue": avg_value,
         }, message="Property assessed value is not greater than average of comparables")
 
     return success(data={
         "eligible": True,
-        "propertyAssessedValue": property.get("assessed value"),
+        "propertyAssessedValue": property_.get("assessed value"),
         "averageAssessedValue": avg_value,
     }, message="Property is eligible for tax refund")
 
@@ -106,12 +118,12 @@ def get_comparables():
 
     if err:
         return error(f"Failed to fetch property data: {err}", status=status)
-    property, comparables = process_comparables_data(data)
+    property_, comparables = process_comparables_data(data)
     avg_assessed_value = compute_average_assessed_value(comparables)
 
     
     return success(data={
-        "property" : property,
+        "property" : property_,
         "comparableProperties" : comparables,
         "averageAssessedValue" : avg_assessed_value
 

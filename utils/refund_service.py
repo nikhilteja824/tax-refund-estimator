@@ -17,7 +17,7 @@ def calculate_refund(base_amount, years_eligible, interest_csv_path):
         rates_df.columns = [col.lower() for col in rates_df.columns]
 
         if "year" not in rates_df.columns or "rate" not in rates_df.columns:
-            return None, "Can't compute tax refund due to invalid interest rate config"
+            return None, "Can't compute tax refund due to invalid interest rate config", {}
 
         rates_df = rates_df.dropna(subset=["year"])
 
@@ -32,7 +32,7 @@ def calculate_refund(base_amount, years_eligible, interest_csv_path):
                     raise ValueError
                 rate = float(rate)
             except (ValueError, TypeError):
-                return None, "Can't compute tax refund due to invalid interest rate config"
+                return None, "Can't compute tax refund due to invalid interest rate config", {}
 
             rates[year] = rate
 
@@ -40,27 +40,31 @@ def calculate_refund(base_amount, years_eligible, interest_csv_path):
         last_full_year = current_year - 1
 
         total_refund = 0.0
+        refund_breakdown = {}
         for y in range(last_full_year, last_full_year - years_eligible, -1):
             compound = 1.0
             for n in range(y, last_full_year + 1):
-                if rates.get(n) is None:
+                rate = rates.get(n)
+                if rate is None:
                     raise ValueError
-                compound *= (1 + rates.get(n))
-            total_refund += base_amount * compound
+                compound *= (1 + rate)
+            year_refund = base_amount * compound
+            refund_breakdown[str(y)] = round(year_refund, 2)
+            total_refund += year_refund
 
-        return round(total_refund, 2), None
+        return round(total_refund, 2), None, refund_breakdown
 
 
     except Exception:
-        return None, "Can't compute tax refund due to invalid interest rate config"
+        return None, "Can't compute tax refund due to invalid interest rate config", {}
 
 
 
-def is_over_assessed(property, avg_assessed_value):
+def is_over_assessed(property_, avg_assessed_value):
     """
     Returns a tuple: (assessed_value: float, is_over_assessed: bool)
     """
-    property_assessed_value = property.get("assessed value")
+    property_assessed_value = property_.get("assessed value")
 
     # If either value is missing, we can't make a decision
     if property_assessed_value is None or avg_assessed_value is None:

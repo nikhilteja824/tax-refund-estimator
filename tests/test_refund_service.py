@@ -17,10 +17,11 @@ def test_calculate_refund_success(tmp_path):
 
     base_amount = 1000
     years_eligible = 3
-    refund, error = calculate_refund(base_amount, years_eligible, str(csv_path))
+    refund, error, refund_breakdown = calculate_refund(base_amount, years_eligible, str(csv_path))
 
     assert error is None
     assert refund == 3131.68
+    assert refund_breakdown is not None
 
 
 def test_calculate_refund_missing_year(tmp_path):
@@ -34,10 +35,12 @@ def test_calculate_refund_missing_year(tmp_path):
 
     base_amount = 1000
     years_eligible = 3
-    refund, error = calculate_refund(base_amount, years_eligible, str(csv_path))
+    refund, error, refund_breakdown = calculate_refund(base_amount, years_eligible, str(csv_path))
 
     assert refund is None
     assert error is not None
+    assert refund_breakdown == {}
+
 
 def test_calculate_refund_invalid_rate(tmp_path):
     csv_path = tmp_path / "interest_rates.csv"
@@ -47,23 +50,23 @@ def test_calculate_refund_invalid_rate(tmp_path):
     })
     df.to_csv(csv_path, index=False)
 
-    refund, error = calculate_refund(1000, 3, str(csv_path))
+    refund, error, refund_breakdown = calculate_refund(1000, 3, str(csv_path))
     assert refund is None
     assert error is not None
-
+    assert refund_breakdown == {}
 
 
 def test_is_over_assessed_success():
-    property = {"assessed value": 35000}
+    property_ = {"assessed value": 35000}
     avg = 30000
-    value, flag = is_over_assessed(property, avg)
+    value, flag = is_over_assessed(property_, avg)
     assert value == 35000
     assert flag is True
 
 def test_is_over_assessed_failure():
-    property = {"assessed value": 28000}
+    property_ = {"assessed value": 28000}
     avg = 30000
-    value, flag = is_over_assessed(property, avg)
+    value, flag = is_over_assessed(property_, avg)
     assert value == 28000
     assert flag is False
 
