@@ -102,7 +102,9 @@ curl --location 'http://127.0.0.1:5000/refund' \
 ```
 
 
-## Enhancements done 
+## Enhancements done
+These are over and beyond the scope of API contract provided.
+  - Some of these are useful for user facing side and others for tech debugging and usage
 
 1. Eligibility API endpoint
     - Quickly checks if a property is over-assessed and potentially eligible for a refund.
