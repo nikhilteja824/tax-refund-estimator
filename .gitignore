@@ -4,3 +4,4 @@ venv/
 __pycache__
 */__pycache__
 *.log
+utils/__pycache__/
